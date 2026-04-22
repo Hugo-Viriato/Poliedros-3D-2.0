@@ -103,32 +103,58 @@
         renderer.render(scene, camera);
     }
 
-    function atualizarSolido() {
+       function atualizarSolido() {
         if(currentMesh) scene.remove(currentMesh);
         const val = document.getElementById('seletor-solido').value;
         let geo;
-        let info = { f:0, v:0, a:0 };
+        let info = { f: 0, v: 0, a: 0 };
 
-        // Lógica de Geometria
-        if(val.startsWith('p')) { // Prismas
+        // Lógica de Geometria Corrigida
+        if (val.startsWith('p') && !val.startsWith('pi')) { // PRISMAS
             const n = parseInt(val.substring(1));
             geo = new THREE.CylinderGeometry(1.5, 1.5, 2, n);
-            info = { f: n+2, v: 2*n, a: 3*n };
-        } else if(val.startsWith('pi')) { // Pirâmides
+            info = { f: n + 2, v: 2 * n, a: 3 * n };
+        } 
+        else if (val.startsWith('pi')) { // PIRÂMIDES
             const n = parseInt(val.substring(2));
-            geo = new THREE.ConeGeometry(1.5, 2.5, n);
-            info = { f: n+1, v: n+1, a: 2*n };
-        } else { // Platónicos
+            // Raio, Altura, Segmentos (n), e 1 segmento de altura para manter a base plana
+            geo = new THREE.ConeGeometry(1.5, 2.5, n); 
+            info = { f: n + 1, v: n + 1, a: 2 * n };
+        } 
+        else if (val.startsWith('sp')) { // PLATÓNICOS
             const n = parseInt(val.substring(2));
-            if(n==4) geo = new THREE.TetrahedronGeometry(1.5);
-            if(n==6) geo = new THREE.BoxGeometry(1.8, 1.8, 1.8);
-            if(n==8) geo = new THREE.OctahedronGeometry(1.5);
-            if(n==12) geo = new THREE.DodecahedronGeometry(1.5);
-            if(n==20) geo = new THREE.IcosahedronGeometry(1.5);
-            // Dados simplificados para platónicos
-            const plat = {4:[4,4,6], 6:[6,8,12], 8:[8,6,12], 12:[12,20,30], 20:[20,12,30]};
-            info = { f: plat[n][0], v: plat[n][1], a: plat[n][2] };
+            if(n == 4) { geo = new THREE.TetrahedronGeometry(1.5); info = {f:4, v:4, a:6}; }
+            if(n == 6) { geo = new THREE.BoxGeometry(1.8, 1.8, 1.8); info = {f:6, v:8, a:12}; }
+            if(n == 8) { geo = new THREE.OctahedronGeometry(1.5); info = {f:8, v:6, a:12}; }
+            if(n == 12) { geo = new THREE.DodecahedronGeometry(1.5); info = {f:12, v:20, a:30}; }
+            if(n == 20) { geo = new THREE.IcosahedronGeometry(1.5); info = {f:20, v:12, a:30}; }
         }
+
+        // Criar o sólido com cores e contornos (Wireframe) para ser mais fácil de ver
+        const material = new THREE.MeshPhongMaterial({ 
+            color: 0x3498db, 
+            flatShading: true, 
+            shininess: 100 
+        });
+        
+        currentMesh = new THREE.Mesh(geo, material);
+
+        // ADICIONAR ARESTAS VISÍVEIS (Fundamental para alunos do 5º ano)
+        const edges = new THREE.EdgesGeometry(geo);
+        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 }));
+        currentMesh.add(line);
+
+        scene.add(currentMesh);
+
+        // Atualizar texto
+        document.getElementById('info-detalhes').innerHTML = `
+            <div><strong>Faces:</strong> ${info.f}</div>
+            <div><strong>Vértices:</strong> ${info.v}</div>
+            <div><strong>Arestas:</strong> ${info.a}</div>
+            <div><strong>Sólido:</strong> ${document.getElementById('seletor-solido').options[document.getElementById('seletor-solido').selectedIndex].text}</div>
+        `;
+    }
+
 
         const mat = new THREE.MeshNormalMaterial({ wireframe: false });
         currentMesh = new THREE.Mesh(geo, mat);
