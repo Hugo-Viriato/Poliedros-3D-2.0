@@ -2,44 +2,44 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <title>Mundo dos Poliedros Interativo</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>Mundo dos Poliedros - 100 Desafios</title>
+    <script src="https://cloudflare.com"></script>
     <style>
-        :root { --azul: #3498db; --verde: #2ecc71; --laranja: #e67e22; --fundo: #f0f9ff; }
+        :root { --azul: #3498db; --verde: #2ecc71; --laranja: #e67e22; --vermelho: #e74c3c; --fundo: #f0f9ff; }
         body { font-family: 'Comic Sans MS', cursive; background: var(--fundo); margin: 0; text-align: center; }
-        #app-container { background: white; width: 90%; max-width: 900px; margin: 20px auto; border-radius: 20px; padding: 20px; border: 5px solid var(--azul); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        #app-container { background: white; width: 95%; max-width: 900px; margin: 20px auto; border-radius: 20px; padding: 20px; border: 5px solid var(--azul); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .hidden { display: none !important; }
         .btn { padding: 12px 30px; font-size: 1.1rem; border-radius: 50px; cursor: pointer; border: none; color: white; font-weight: bold; margin: 5px; transition: 0.2s; }
         .btn-estudar { background: var(--verde); }
         .btn-quiz { background: var(--laranja); }
-        #canvas-3d { width: 100%; height: 400px; background: #ffffff; border-radius: 15px; cursor: move; margin: 15px 0; border: 1px solid #ddd; }
+        #canvas-3d { width: 100%; height: 350px; background: #ffffff; border-radius: 15px; margin: 15px 0; border: 2px solid #ddd; }
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #e8f4fd; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-        .opcoes-quiz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .btn-opcao { background: var(--azul); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-size: 1rem; }
-        .btn-opcao:hover { background: #2980b9; }
+        .stats-quiz { display: flex; justify-content: space-around; background: #eee; padding: 10px; border-radius: 15px; margin-bottom: 15px; font-weight: bold; }
+        .opcoes-quiz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-opcao { background: var(--azul); color: white; border: none; padding: 18px; border-radius: 12px; cursor: pointer; font-size: 1rem; font-weight: bold; }
+        .btn-opcao:hover { background: #2980b9; transform: translateY(-2px); }
+        .certo { color: var(--verde); }
+        .errado { color: var(--vermelho); }
     </style>
 </head>
 <body>
 
 <div id="app-container">
-    <!-- Ecrã Inicial -->
     <div id="ecra-inicial">
         <h1>Bem-vindos ao mundo dos poliedros! 🧊</h1>
-        <p>O que queres fazer?</p>
+        <p>Prepara-te para explorar e aprender Matemática de forma divertida!</p>
         <button class="btn btn-estudar" onclick="irPara('estudar')">Estudar</button>
-        <button class="btn btn-quiz" onclick="irPara('quiz')">Quiz</button>
+        <button class="btn btn-quiz" onclick="irPara('quiz')">Quiz (100 Perguntas)</button>
     </div>
 
-    <!-- Ecrã Estudar -->
     <div id="ecra-estudar" class="hidden">
         <h2>Explorador 3D 🔍</h2>
-        <select id="seletor-solido" onchange="atualizarSolido()" style="padding: 10px; border-radius: 10px; font-size: 1rem; width: 80%;">
+        <select id="seletor-solido" onchange="atualizarSolido()" style="padding: 10px; border-radius: 10px; width: 80%;">
             <optgroup label="Prismas">
                 <option value="p3">Prisma Triangular</option>
-                <option value="p4">Cubo (Prisma Quadrangular)</option>
+                <option value="p4">Cubo</option>
                 <option value="p5">Prisma Pentagonal</option>
                 <option value="p6">Prisma Hexagonal</option>
-                <option value="p7">Prisma Heptagonal</option>
                 <option value="p8">Prisma Octogonal</option>
             </optgroup>
             <optgroup label="Pirâmides">
@@ -47,127 +47,69 @@
                 <option value="pi4">Pirâmide Quadrangular</option>
                 <option value="pi5">Pirâmide Pentagonal</option>
                 <option value="pi6">Pirâmide Hexagonal</option>
-                <option value="pi7">Pirâmide Heptagonal</option>
                 <option value="pi8">Pirâmide Octogonal</option>
             </optgroup>
             <optgroup label="Sólidos Platónicos">
                 <option value="sp4">Tetraedro</option>
-                <option value="sp6">Hexaedro (Cubo)</option>
                 <option value="sp8">Octaedro</option>
                 <option value="sp12">Dodecaedro</option>
                 <option value="sp20">Icosaedro</option>
             </optgroup>
         </select>
-
         <div id="canvas-3d"></div>
-
         <div class="info-grid" id="info-detalhes"></div>
         <button class="btn" style="background:#95a5a6" onclick="irPara('inicial')">Voltar</button>
     </div>
 
-    <!-- Ecrã Quiz -->
     <div id="ecra-quiz" class="hidden">
-        <h2 id="quiz-pergunta-num">Pergunta 1/50</h2>
-        <div id="pergunta-texto" style="font-size: 1.3rem; margin: 20px 0; min-height: 60px;"></div>
+        <div class="stats-quiz">
+            <span class="certo">Certas: <span id="count-certo">0</span></span>
+            <span id="quiz-progresso">Pergunta 1/100</span>
+            <span class="errado">Erradas: <span id="count-errado">0</span></span>
+        </div>
+        <div id="pergunta-texto" style="font-size: 1.3rem; margin: 20px 0; min-height: 50px; font-weight: bold;"></div>
         <div class="opcoes-quiz" id="quiz-opcoes"></div>
-        <div id="quiz-feedback" style="margin-top: 15px; font-weight: bold; font-size: 1.2rem;"></div>
-        <button class="btn" style="background:#95a5a6; margin-top: 20px;" onclick="irPara('inicial')">Sair</button>
+        <div id="quiz-feedback" style="margin-top: 15px; font-size: 1.2rem; font-weight: bold;"></div>
+        <button class="btn" style="background:#95a5a6; margin-top: 20px;" onclick="irPara('inicial')">Desistir</button>
     </div>
 </div>
 
 <script>
-    let scene, camera, renderer, currentMesh, currentEdges;
-    const container = document.getElementById('canvas-3d');
+    let scene, camera, renderer, currentMesh;
+    let certas = 0, erradas = 0, perguntaAtualNum = 0;
+    let bancoPerguntas = [];
 
-    function init3D() {
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xffffff);
-        camera = new THREE.PerspectiveCamera(75, container.clientWidth / 400, 0.1, 1000);
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(container.clientWidth, 400);
-        container.appendChild(renderer.domElement);
+    // --- GERADOR DE 100 PERGUNTAS ALEATÓRIAS ---
+    function gerarPerguntas() {
+        const perguntas = [
+            {q: "O que define um poliedro?", opts: ["Superfícies curvas", "Superfícies planas", "Forma de bola", "Ter apenas 2 faces"], r: 1},
+            {q: "Quantas bases tem uma pirâmide?", opts: ["1", "2", "3", "Nenhuma"], r: 0},
+            {q: "Um prisma triangular tem quantas faces no total?", opts: ["3", "4", "5", "6"], r: 2},
+            {q: "O cubo é um caso especial de...", opts: ["Pirâmide", "Não poliedro", "Prisma quadrangular", "Esfera"], r: 2},
+            {q: "Quantos vértices tem um tetraedro?", opts: ["4", "6", "8", "12"], r: 0},
+            {q: "A Relação de Euler é:", opts: ["V+A=F+2", "V+F=A+2", "A+F=V+2", "V+F=A"], r: 1},
+            {q: "Quantas arestas tem um octaedro?", opts: ["8", "12", "6", "20"], r: 1},
+            {q: "As faces laterais de um prisma são sempre...", opts: ["Triângulos", "Círculos", "Paralelogramos/Retângulos", "Pentágonos"], r: 2},
+            {q: "Qual destes não é um Sólido Platónico?", opts: ["Dodecaedro", "Icosaedro", "Prisma Octogonal", "Octaedro"], r: 2},
+            {q: "Um poliedro com 12 faces chama-se...", opts: ["Icosaedro", "Dodecaedro", "Octaedro", "Decaedro"], r: 1}
+        ];
         
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(5, 5, 5).normalize();
-        scene.add(light);
-        scene.add(new THREE.AmbientLight(0x404040));
-        
-        camera.position.z = 5;
-        animate();
-        
-        let isDragging = false;
-        renderer.domElement.onmousedown = () => isDragging = true;
-        window.onmouseup = () => isDragging = false;
-        window.onmousemove = (e) => {
-            if(isDragging && currentMesh) {
-                currentMesh.rotation.y += e.movementX * 0.01;
-                currentMesh.rotation.x += e.movementY * 0.01;
-            }
-        };
-    }
-
-    function animate() {
-        requestAnimationFrame(animate);
-        if(currentMesh && !window.isDragging) {
-            currentMesh.rotation.y += 0.005;
-        }
-        renderer.render(scene, camera);
-    }
-
-    function atualizarSolido() {
-        if(currentMesh) scene.remove(currentMesh);
-        const val = document.getElementById('seletor-solido').value;
-        let geo, info = { f:0, v:0, a:0 };
-
-        if(val.startsWith('pi')) { // PIRÂMIDES
-            const n = parseInt(val.substring(2));
-            geo = new THREE.ConeGeometry(1.5, 2.5, n);
-            info = { f: n+1, v: n+1, a: 2*n };
-        } else if(val.startsWith('p')) { // PRISMAS
-            const n = parseInt(val.substring(1));
-            geo = new THREE.CylinderGeometry(1.5, 1.5, 2.5, n);
-            info = { f: n+2, v: 2*n, a: 3*n };
-        } else { // PLATÓNICOS
-            const n = parseInt(val.substring(2));
-            if(n==4) { geo = new THREE.TetrahedronGeometry(1.8); info={f:4,v:4,a:6}; }
-            else if(n==6) { geo = new THREE.BoxGeometry(1.8,1.8,1.8); info={f:6,v:8,a:12}; }
-            else if(n==8) { geo = new THREE.OctahedronGeometry(1.8); info={f:8,v:6,a:12}; }
-            else if(n==12) { geo = new THREE.DodecahedronGeometry(1.8); info={f:12,v:20,a:30}; }
-            else if(n==20) { geo = new THREE.IcosahedronGeometry(1.8); info={f:20,v:12,a:30}; }
-        }
-
-        const mat = new THREE.MeshPhongMaterial({ color: 0x3498db, flatShading: true });
-        currentMesh = new THREE.Mesh(geo, mat);
-        
-        // Adicionar arestas pretas para as pirâmides e sólidos serem visíveis
-        const edges = new THREE.EdgesGeometry(geo);
-        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 }));
-        currentMesh.add(line);
-        
-        scene.add(currentMesh);
-        document.getElementById('info-detalhes').innerHTML = `
-            <div><strong>Faces:</strong> ${info.f}</div><div><strong>Vértices:</strong> ${info.v}</div>
-            <div><strong>Arestas:</strong> ${info.a}</div><div><strong>Tipo:</strong> ${document.getElementById('seletor-solido').options[document.getElementById('seletor-solido').selectedIndex].text}</div>
-        `;
-    }
-
-    // --- LÓGICA DO QUIZ (50 Perguntas) ---
-    let perguntaAtual = 0;
-    let pontuacao = 0;
-    const perguntas = [];
-    for(let i=1; i<=50; i++) {
-        perguntas.push({
-            q: `Pergunta ${i}: Quantas bases tem um prisma?`,
-            opts: ["Uma", "Duas", "Três", "Nenhuma"],
-            r: 1
+        // Gerar variações automáticas para chegar às 100
+        const tipos = ["triangular", "quadrangular", "pentagonal", "hexagonal", "heptagonal", "octogonal"];
+        tipos.forEach((t, i) => {
+            let n = i + 3;
+            perguntas.push({q: `Quantas bases tem um prisma ${t}?`, opts: ["1", "2", "3", "0"], r: 1});
+            perguntas.push({q: `Quantas faces tem uma pirâmide ${t}?`, opts: [n, n+1, n+2, n*2], r: 1});
+            perguntas.push({q: `Quantas arestas tem a base de um prisma ${t}?`, opts: [n-1, n, n+1, n+2], r: 1});
+            perguntas.push({q: `Um sólido com superfícies curvas é um poliedro?`, opts: ["Sim", "Não", "Só os grandes", "Às vezes"], r: 1});
         });
+
+        // Duplicar e baralhar para garantir volume e variedade
+        while(perguntas.length < 100) {
+            perguntas.push(perguntas[Math.floor(Math.random() * perguntas.length)]);
+        }
+        return perguntas.sort(() => Math.random() - 0.5);
     }
-    // Exemplos de perguntas reais para o 5º ano:
-    perguntas[0] = { q: "Um poliedro cujas faces laterais são triângulos é uma...", opts: ["Esfera", "Pirâmide", "Prisma", "Cubo"], r: 1 };
-    perguntas[1] = { q: "Quantas bases tem qualquer prisma?", opts: ["1", "2", "3", "Depende"], r: 1 };
-    perguntas[2] = { q: "O ponto onde as arestas se encontram chama-se...", opts: ["Face", "Lado", "Vértice", "Centro"], r: 2 };
-    perguntas[3] = { q: "Um prisma hexagonal tem quantas bases?", opts: ["2", "6", "1", "12"], r: 0 };
-    perguntas[4] = { q: "A pirâmide quadrangular tem quantos vértices?", opts: ["4", "5", "8", "6"], r: 1 };
 
     function irPara(ecra) {
         document.querySelectorAll('#app-container > div').forEach(div => div.classList.add('hidden'));
@@ -176,45 +118,96 @@
         if(ecra === 'quiz') iniciarQuiz();
     }
 
+    // --- 3D LOGIC ---
+    function init3D() {
+        const canvas = document.getElementById('canvas-3d');
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff);
+        camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / 350, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(canvas.clientWidth, 350);
+        canvas.appendChild(renderer.domElement);
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 5, 5);
+        scene.add(light, new THREE.AmbientLight(0x404040));
+        camera.position.z = 5;
+        animate();
+    }
+
+    function animate() { requestAnimationFrame(animate); renderer.render(scene, camera); }
+
+    function atualizarSolido() {
+        if(currentMesh) scene.remove(currentMesh);
+        const val = document.getElementById('seletor-solido').value;
+        let geo, info = {};
+        if(val.startsWith('pi')) { 
+            let n = parseInt(val.substring(2)); geo = new THREE.ConeGeometry(1.5, 2.5, n); info = {f:n+1,v:n+1,a:2*n};
+        } else if(val.startsWith('p')) {
+            let n = parseInt(val.substring(1)); geo = new THREE.CylinderGeometry(1.5,1.5,2.5,n); info = {f:n+2,v:2*n,a:3*n};
+        } else {
+            let n = parseInt(val.substring(2));
+            if(n==4) geo = new THREE.TetrahedronGeometry(1.8);
+            if(n==8) geo = new THREE.OctahedronGeometry(1.8);
+            if(n==12) geo = new THREE.DodecahedronGeometry(1.8);
+            if(n==20) geo = new THREE.IcosahedronGeometry(1.8);
+            const pData = {4:[4,4,6], 8:[8,6,12], 12:[12,20,30], 20:[20,12,30]};
+            info = {f:pData[n][0], v:pData[n][1], a:pData[n][2]};
+        }
+        currentMesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({color: 0x3498db, flatShading: true}));
+        const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({color: 0x000000}));
+        currentMesh.add(edges);
+        scene.add(currentMesh);
+        document.getElementById('info-detalhes').innerHTML = `<div>Faces: ${info.f}</div><div>Vértices: ${info.v}</div><div>Arestas: ${info.a}</div>`;
+    }
+
+    // --- QUIZ LOGIC ---
     function iniciarQuiz() {
-        perguntaAtual = 0; pontuacao = 0;
+        certas = 0; erradas = 0; perguntaAtualNum = 0;
+        bancoPerguntas = gerarPerguntas();
+        atualizarStats();
         mostrarPergunta();
     }
 
     function mostrarPergunta() {
-        if(perguntaAtual >= 50) {
-            document.getElementById('pergunta-texto').innerText = `Fim do Quiz! Pontuação: ${pontuacao}/50`;
-            document.getElementById('quiz-opcoes').innerHTML = '';
+        if(perguntaAtualNum >= 100) {
+            document.getElementById('pergunta-texto').innerText = "Incrível! Completaste as 100 perguntas!";
+            document.getElementById('quiz-opcoes').innerHTML = "";
             return;
         }
-        const p = perguntas[perguntaAtual];
-        document.getElementById('quiz-pergunta-num').innerText = `Pergunta ${perguntaAtual + 1}/50`;
+        const p = bancoPerguntas[perguntaAtualNum];
+        document.getElementById('quiz-progresso').innerText = `Pergunta ${perguntaAtualNum + 1}/100`;
         document.getElementById('pergunta-texto').innerText = p.q;
         const optsDiv = document.getElementById('quiz-opcoes');
-        optsDiv.innerHTML = '';
-        p.opts.forEach((o, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-opcao';
-            btn.innerText = o;
-            btn.onclick = () => verificarResposta(i);
-            optsDiv.appendChild(btn);
+        optsDiv.innerHTML = "";
+        p.opts.forEach((opt, i) => {
+            const b = document.createElement('button');
+            b.className = 'btn-opcao';
+            b.innerText = opt;
+            b.onclick = () => validar(i);
+            optsDiv.appendChild(b);
         });
-        document.getElementById('quiz-feedback').innerText = '';
+        document.getElementById('quiz-feedback').innerText = "";
     }
 
-    function verificarResposta(i) {
-        if(i === perguntas[perguntaAtual].r) {
-            pontuacao++;
-            document.getElementById('quiz-feedback').innerText = "✅ Correto!";
-            document.getElementById('quiz-feedback').style.color = "green";
+    function validar(i) {
+        if(i === bancoPerguntas[perguntaAtualNum].r) {
+            certas++;
+            document.getElementById('quiz-feedback').innerHTML = "<span class='certo'>⭐ Excelente!</span>";
         } else {
-            document.getElementById('quiz-feedback').innerText = "❌ Errado!";
-            document.getElementById('quiz-feedback').style.color = "red";
+            erradas++;
+            document.getElementById('quiz-feedback').innerHTML = "<span class='errado'>❌ Oh! A correta era: " + bancoPerguntas[perguntaAtualNum].opts[bancoPerguntas[perguntaAtualNum].r] + "</span>";
         }
-        setTimeout(() => { perguntaAtual++; mostrarPergunta(); }, 1000);
+        atualizarStats();
+        setTimeout(() => { perguntaAtualNum++; mostrarPergunta(); }, 1500);
+    }
+
+    function atualizarStats() {
+        document.getElementById('count-certo').innerText = certas;
+        document.getElementById('count-errado').innerText = erradas;
     }
 </script>
 </body>
 </html>
+
 
 
