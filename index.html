@@ -2,225 +2,158 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mundo dos Poliedros - 5.º Ano</title>
+    <title>Mundo dos Poliedros Interativo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        :root {
-            --azul: #3498db;
-            --verde: #2ecc71;
-            --amarelo: #f1c40f;
-            --laranja: #e67e22;
-            --roxo: #9b59b6;
-            --fundo: #f0f9ff;
-        }
-
-        body {
-            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
-            background-color: var(--fundo);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #2c3e50;
-        }
-
-        #app-container {
-            background: white;
-            width: 90%;
-            max-width: 800px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 30px;
-            text-align: center;
-            border: 5px solid var(--azul);
-        }
-
+        :root { --azul: #3498db; --verde: #2ecc71; --laranja: #e67e22; --fundo: #f0f9ff; }
+        body { font-family: 'Comic Sans MS', cursive; background: var(--fundo); margin: 0; text-align: center; }
+        #app-container { background: white; width: 90%; max-width: 900px; margin: 20px auto; border-radius: 20px; padding: 20px; border: 5px solid var(--azul); }
         .hidden { display: none; }
-
-        h1 { color: var(--azul); font-size: 2.5rem; }
-        .btn {
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            margin: 10px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            color: white;
-            font-weight: bold;
-        }
-        .btn:hover { transform: scale(1.1); }
-        .btn-estudar { background-color: var(--verde); }
-        .btn-quiz { background-color: var(--laranja); }
-        .btn-voltar { background-color: #95a5a6; margin-top: 20px; }
-
-        /* Estilo Simulador */
-        .simulador-box {
-            background: #e8f4fd;
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 20px;
-        }
-        select { padding: 10px; font-size: 1rem; border-radius: 10px; }
-
-        /* Estilo Quiz */
-        .opcoes-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .btn-opcao {
-            background: var(--azul);
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-opcao:hover { background: var(--roxo); }
-        #feedback { font-weight: bold; margin-top: 15px; font-size: 1.2rem; }
+        .btn { padding: 12px 30px; font-size: 1.1rem; border-radius: 50px; cursor: pointer; border: none; color: white; font-weight: bold; margin: 5px; transition: 0.2s; }
+        .btn-estudar { background: var(--verde); }
+        .btn-quiz { background: var(--laranja); }
+        #canvas-3d { width: 100%; height: 400px; background: #eee; border-radius: 15px; cursor: move; margin: 15px 0; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #e8f4fd; padding: 15px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
 <div id="app-container">
-    <!-- Página Inicial -->
     <div id="ecra-inicial">
         <h1>Bem-vindos ao mundo dos poliedros! 🧊</h1>
-        <p style="font-size: 1.5rem;">O que queres fazer?</p>
+        <p>O que queres fazer?</p>
         <button class="btn btn-estudar" onclick="irPara('estudar')">Estudar</button>
         <button class="btn btn-quiz" onclick="irPara('quiz')">Quiz</button>
     </div>
 
-    <!-- Página Estudar (Simulador) -->
     <div id="ecra-estudar" class="hidden">
-        <h2>Simulador de Sólidos 🔍</h2>
-        <p>Escolhe um sólido para analisar os seus elementos:</p>
-        <select id="seletor-solido" onchange="atualizarSimulador()">
-            <option value="cubo">Cubo (Prisma Quadrangular Regular)</option>
-            <option value="p_tri">Prisma Triangular</option>
-            <option value="p_hex">Prisma Hexagonal</option>
-            <option value="pir_quad">Pirâmide Quadrangular</option>
-            <option value="pir_tri">Pirâmide Triangular (Tetraedro)</option>
+        <h2>Explorador 3D 🔍</h2>
+        <select id="seletor-solido" onchange="atualizarSolido()" style="padding: 10px; border-radius: 10px; font-size: 1rem;">
+            <optgroup label="Prismas">
+                <option value="p3">Prisma Triangular</option>
+                <option value="p4">Cubo (Prisma Quadrangular)</option>
+                <option value="p5">Prisma Pentagonal</option>
+                <option value="p6">Prisma Hexagonal</option>
+                <option value="p7">Prisma Heptagonal</option>
+                <option value="p8">Prisma Octogonal</option>
+            </optgroup>
+            <optgroup label="Pirâmides">
+                <option value="pi3">Pirâmide Triangular</option>
+                <option value="pi4">Pirâmide Quadrangular</option>
+                <option value="pi5">Pirâmide Pentagonal</option>
+                <option value="pi6">Pirâmide Hexagonal</option>
+                <option value="pi7">Pirâmide Heptagonal</option>
+                <option value="pi8">Pirâmide Octogonal</option>
+            </optgroup>
+            <optgroup label="Sólidos Platónicos">
+                <option value="sp4">Tetraedro</option>
+                <option value="sp6">Hexaedro (Cubo)</option>
+                <option value="sp8">Octaedro</option>
+                <option value="sp12">Dodecaedro</option>
+                <option value="sp20">Icosaedro</option>
+            </optgroup>
         </select>
-        <div class="simulador-box" id="info-simulador">
-            <!-- Info preenchida por JS -->
-        </div>
-        <button class="btn btn-voltar" onclick="irPara('inicial')">Voltar</button>
-    </div>
 
-    <!-- Página Quiz -->
-    <div id="ecra-quiz" class="hidden">
-        <h2 id="num-pergunta">Pergunta 1/50</h2>
-        <div id="pergunta-texto" style="font-size: 1.3rem; margin-bottom: 20px;"></div>
-        <div class="opcoes-container" id="opcoes"></div>
-        <div id="feedback"></div>
-        <button class="btn btn-voltar" onclick="irPara('inicial')">Sair do Quiz</button>
+        <div id="canvas-3d"></div>
+
+        <div class="info-grid" id="info-detalhes">
+            <!-- Preenchido por JS -->
+        </div>
+        <button class="btn" style="background:#95a5a6" onclick="irPara('inicial')">Voltar</button>
     </div>
 </div>
 
 <script>
-    // Dados do Simulador
-    const dadosSolidos = {
-        cubo: { f: 6, v: 8, a: 12, tipo: "Prisma", faces: "Quadrados" },
-        p_tri: { f: 5, v: 6, a: 9, tipo: "Prisma", faces: "2 Triângulos e 3 Retângulos" },
-        p_hex: { f: 8, v: 12, a: 18, tipo: "Prisma", faces: "2 Hexágonos e 6 Retângulos" },
-        pir_quad: { f: 5, v: 5, a: 8, tipo: "Pirâmide", faces: "1 Quadrado e 4 Triângulos" },
-        pir_tri: { f: 4, v: 4, a: 6, tipo: "Pirâmide", faces: "4 Triângulos" }
-    };
+    let scene, camera, renderer, currentMesh;
+    const container = document.getElementById('canvas-3d');
 
-    // Banco de Perguntas (Exemplos representativos das 50)
-    const bancoPerguntas = [
-        { q: "Um poliedro cujas faces laterais são triângulos é uma...", opts: ["Esfera", "Pirâmide", "Prisma", "Cilindro"], r: 1 },
-        { q: "Quantas bases tem um prisma?", opts: ["Uma", "Duas", "Três", "Nenhuma"], r: 1 },
-        { q: "O ponto onde se encontram as arestas chama-se...", opts: ["Face", "Lado", "Vértice", "Base"], r: 2 },
-        { q: "Um prisma pentagonal tem quantas bases?", opts: ["2", "5", "1", "10"], r: 0 },
-        { q: "A pirâmide hexagonal tem quantas arestas na base?", opts: ["4", "5", "6", "12"], r: 2 },
-        // ... (Para chegar às 50, o sistema repete variações sobre estes temas)
-    ];
-
-    // Gerar mais perguntas dinamicamente para chegar às 50 (Variações)
-    for(let i=5; i<50; i++) {
-        bancoPerguntas.push({
-            q: `Pergunta de revisão ${i+1}: Um poliedro com superfícies curvas é um poliedro?`,
-            opts: ["Sim", "Não", "Às vezes", "Só se for grande"],
-            r: 1
-        });
+    function init3D() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff);
+        camera = new THREE.PerspectiveCamera(75, container.clientWidth / 400, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, 400);
+        container.appendChild(renderer.domElement);
+        
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 5, 5).normalize();
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+        
+        camera.position.z = 5;
+        animate();
+        
+        // Interatividade de rotação com o rato
+        let isDragging = false;
+        container.onmousedown = () => isDragging = true;
+        window.onmouseup = () => isDragging = false;
+        window.onmousemove = (e) => {
+            if(isDragging && currentMesh) {
+                currentMesh.rotation.y += e.movementX * 0.01;
+                currentMesh.rotation.x += e.movementY * 0.01;
+            }
+        };
     }
 
-    let perguntaAtual = 0;
-    let pontuacao = 0;
+    function animate() {
+        requestAnimationFrame(animate);
+        if(currentMesh && !window.isDragging) {
+            currentMesh.rotation.y += 0.005;
+        }
+        renderer.render(scene, camera);
+    }
+
+    function atualizarSolido() {
+        if(currentMesh) scene.remove(currentMesh);
+        const val = document.getElementById('seletor-solido').value;
+        let geo;
+        let info = { f:0, v:0, a:0 };
+
+        // Lógica de Geometria
+        if(val.startsWith('p')) { // Prismas
+            const n = parseInt(val.substring(1));
+            geo = new THREE.CylinderGeometry(1.5, 1.5, 2, n);
+            info = { f: n+2, v: 2*n, a: 3*n };
+        } else if(val.startsWith('pi')) { // Pirâmides
+            const n = parseInt(val.substring(2));
+            geo = new THREE.ConeGeometry(1.5, 2.5, n);
+            info = { f: n+1, v: n+1, a: 2*n };
+        } else { // Platónicos
+            const n = parseInt(val.substring(2));
+            if(n==4) geo = new THREE.TetrahedronGeometry(1.5);
+            if(n==6) geo = new THREE.BoxGeometry(1.8, 1.8, 1.8);
+            if(n==8) geo = new THREE.OctahedronGeometry(1.5);
+            if(n==12) geo = new THREE.DodecahedronGeometry(1.5);
+            if(n==20) geo = new THREE.IcosahedronGeometry(1.5);
+            // Dados simplificados para platónicos
+            const plat = {4:[4,4,6], 6:[6,8,12], 8:[8,6,12], 12:[12,20,30], 20:[20,12,30]};
+            info = { f: plat[n][0], v: plat[n][1], a: plat[n][2] };
+        }
+
+        const mat = new THREE.MeshNormalMaterial({ wireframe: false });
+        currentMesh = new THREE.Mesh(geo, mat);
+        scene.add(currentMesh);
+
+        document.getElementById('info-detalhes').innerHTML = `
+            <div><strong>Faces:</strong> ${info.f}</div>
+            <div><strong>Vértices:</strong> ${info.v}</div>
+            <div><strong>Arestas:</strong> ${info.a}</div>
+            <div><strong>Sólido:</strong> ${document.getElementById('seletor-solido').options[document.getElementById('seletor-solido').selectedIndex].text}</div>
+        `;
+    }
 
     function irPara(ecra) {
         document.getElementById('ecra-inicial').classList.add('hidden');
         document.getElementById('ecra-estudar').classList.add('hidden');
-        document.getElementById('ecra-quiz').classList.add('hidden');
-        
-        if(ecra === 'inicial') document.getElementById('ecra-inicial').classList.remove('hidden');
         if(ecra === 'estudar') {
             document.getElementById('ecra-estudar').classList.remove('hidden');
-            atualizarSimulador();
-        }
-        if(ecra === 'quiz') {
-            perguntaAtual = 0; pontuacao = 0;
-            document.getElementById('ecra-quiz').classList.remove('hidden');
-            mostrarPergunta();
-        }
-    }
-
-    function atualizarSimulador() {
-        const id = document.getElementById('seletor-solido').value;
-        const s = dadosSolidos[id];
-        document.getElementById('info-simulador').innerHTML = `
-            <p><strong>Tipo:</strong> ${s.tipo}</p>
-            <p><strong>Faces:</strong> ${s.f} (${s.faces})</p>
-            <p><strong>Vértices:</strong> ${s.v}</p>
-            <p><strong>Arestas:</strong> ${s.a}</p>
-            <p style="font-style: italic; color: #7f8c8d;">Relação de Euler: ${s.v} + ${s.f} = ${s.a} + 2</p>
-        `;
-    }
-
-    function mostrarPergunta() {
-        const q = bancoPerguntas[perguntaAtual];
-        document.getElementById('num-pergunta').innerText = `Pergunta ${perguntaAtual + 1}/50`;
-        document.getElementById('pergunta-texto').innerText = q.q;
-        const container = document.getElementById('opcoes');
-        container.innerHTML = '';
-        document.getElementById('feedback').innerText = '';
-
-        q.opts.forEach((opt, index) => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-opcao';
-            btn.innerText = opt;
-            btn.onclick = () => validarResposta(index);
-            container.appendChild(btn);
-        });
-    }
-
-    function validarResposta(escolha) {
-        const correta = bancoPerguntas[perguntaAtual].r;
-        if(escolha === correta) {
-            pontuacao++;
-            document.getElementById('feedback').innerHTML = "✅ Certíssimo! Parabéns!";
-            document.getElementById('feedback').style.color = "green";
+            if(!scene) init3D();
+            atualizarSolido();
         } else {
-            document.getElementById('feedback').innerHTML = "❌ Quase! A resposta era: " + bancoPerguntas[perguntaAtual].opts[correta];
-            document.getElementById('feedback').style.color = "red";
+            document.getElementById('ecra-inicial').classList.remove('hidden');
         }
-
-        setTimeout(() => {
-            perguntaAtual++;
-            if(perguntaAtual < bancoPerguntas.length) {
-                mostrarPergunta();
-            } else {
-                alert(`Fim do Quiz! Acertaste ${pontuacao} de 50 perguntas.`);
-                irPara('inicial');
-            }
-        }, 1500);
     }
 </script>
-
 </body>
 </html>
+
