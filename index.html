@@ -176,10 +176,24 @@
         if(ecra === 'quiz') iniciarQuiz();
     }
 
-    function iniciarQuiz() {
-        perguntaAtual = 0; pontuacao = 0;
-        mostrarPergunta();
-    }
+<script>
+function baralhar(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+</script>
+
+    
+function iniciarQuiz() {
+  perguntaAtual = 0;
+  pontuacao = 0;
+  baralhar(perguntas);   
+  mostrarPergunta();
+}
+
+    
 
     function mostrarPergunta() {
         if(perguntaAtual >= 50) {
