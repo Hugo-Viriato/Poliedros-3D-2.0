@@ -176,17 +176,9 @@
         if(ecra === 'quiz') iniciarQuiz();
     }
 
-<script>
-function baralhar(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
-</script>  
-function iniciarQuiz() {
+    function iniciarQuiz() {
         perguntaAtual = 0; pontuacao = 0;
-    baralhar(perguntas);
+        baralhar(perguntas)
         mostrarPergunta();
     }
 
@@ -225,6 +217,5 @@ function iniciarQuiz() {
 </script>
 </body>
 </html>
-
 
 
